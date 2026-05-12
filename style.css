@@ -44,9 +44,9 @@ html, body {
   justify-content: space-between;
   align-items: flex-end;
   padding: 12px 16px 10px;
-  border-bottom: 3px solid var(--black);
-  background: var(--black);
-  color: var(--bg);
+  border-bottom: 1px solid #2a2a2a;
+  background: #1a1a1a;
+  color: var(--dark);
 }
 
 #clock-date {
@@ -58,7 +58,7 @@ html, body {
   font-family: var(--font-display);
   font-size: 3rem;
   line-height: 1;
-  color: var(--bg);
+  color: var(--dark);
   letter-spacing: -1px;
   font-weight: 700;
 }
@@ -67,7 +67,7 @@ html, body {
   font-size: 0.9rem;
   font-weight: 700;
   letter-spacing: 0.18em;
-  color: #555555;
+  color: #999999;
   margin-top: 6px;
   text-transform: uppercase;
 }
@@ -84,7 +84,7 @@ html, body {
   font-size: 0.85rem;
   font-weight: 700;
   letter-spacing: 0.18em;
-  color: #555555;
+  color: #999999;
   text-transform: uppercase;
   line-height: 1;
 }
@@ -95,14 +95,14 @@ html, body {
   font-weight: 700;
   letter-spacing: 0.12em;
   line-height: 1;
-  color: var(--bg);
+  color: var(--dark);
 }
 
 #weather-temp {
   font-family: var(--font-display);
   font-size: 1.7rem;
   font-weight: 700;
-  color: var(--bg);
+  color: var(--dark);
   line-height: 1;
 }
 
@@ -110,7 +110,7 @@ html, body {
   font-size: 0.85rem;
   font-weight: 700;
   letter-spacing: 0.12em;
-  color: #555555;
+  color: #999999;
   text-transform: uppercase;
 }
 
@@ -285,8 +285,8 @@ html, body {
 .week-day-row:last-child { border-bottom: none; }
 
 .week-day-row.today-row {
-  background: var(--black);
-  color: var(--bg);
+  background: #2a2a2a;
+  color: var(--dark);
 }
 
 .week-day-label {
@@ -300,7 +300,7 @@ html, body {
 }
 
 .week-day-row.today-row .week-day-label {
-  border-right-color: #aaaaaa;
+  border-right-color: #555555;
 }
 
 .week-dayname {
@@ -310,7 +310,7 @@ html, body {
   color: var(--black);
 }
 
-.week-day-row.today-row .week-dayname { color: #555555; }
+.week-day-row.today-row .week-dayname { color: #999999; }
 
 .week-daynum {
   font-family: var(--font-display);
@@ -340,9 +340,9 @@ html, body {
 }
 
 .week-day-row.today-row .week-event-pill {
-  background: #f0f0f0;
-  border-left-color: #555555;
-  color: var(--bg);
+  background: #1a1a1a;
+  border-left-color: #888888;
+  color: var(--dark);
 }
 
 .week-task-count {
@@ -353,7 +353,7 @@ html, body {
   padding: 2px 0;
 }
 
-.week-day-row.today-row .week-task-count { color: #555555; }
+.week-day-row.today-row .week-task-count { color: #999999; }
 
 /* ---- MONTH VIEW ---- */
 #month-nav {
@@ -422,8 +422,8 @@ html, body {
 }
 
 .month-cell.today-cell {
-  background: var(--black);
-  color: var(--bg);
+  background: #2a2a2a;
+  color: var(--dark);
 }
 
 .month-cell.other-month {
@@ -453,7 +453,7 @@ html, body {
 }
 
 .month-cell.today-cell .month-dot {
-  background: #555555;
+  background: #999999;
 }
 
 .month-task-bar {
@@ -464,7 +464,7 @@ html, body {
   margin-top: 2px;
 }
 
-.month-cell.today-cell .month-task-bar { color: #555555; }
+.month-cell.today-cell .month-task-bar { color: #999999; }
 
 /* ---- TASKS VIEW CONTROLS ---- */
 .tasks-header-row {
