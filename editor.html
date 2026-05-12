@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Data Editor</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f5f5f5;
+    color: #111;
+    padding: 20px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid #111;
+    margin-bottom: 20px;
+  }
+  h1 { font-size: 1.4rem; margin: 0; }
+  h2 { font-size: 1.1rem; margin: 24px 0 12px; border-bottom: 1px solid #ccc; padding-bottom: 6px; }
+  .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  button {
+    padding: 10px 16px;
+    font-size: 0.95rem;
+    border: 1px solid #111;
+    background: #fff;
+    color: #111;
+    cursor: pointer;
+    border-radius: 4px;
+    font-weight: 600;
+  }
+  button.primary { background: #111; color: #fff; }
+  button.danger { border-color: #b00; color: #b00; }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  #status {
+    padding: 10px 14px;
+    background: #fff;
+    border-left: 4px solid #888;
+    margin-bottom: 16px;
+    font-size: 0.9rem;
+    min-height: 20px;
+  }
+  #status.error { border-left-color: #b00; color: #b00; }
+  #status.success { border-left-color: #060; color: #060; }
+  #status.working { border-left-color: #06c; color: #06c; }
+  .item {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 12px;
+    margin-bottom: 10px;
+    display: grid;
+    gap: 8px;
+    grid-template-columns: 130px 110px 1fr 110px 80px;
+    align-items: center;
+  }
+  .item.task { grid-template-columns: 130px 40px 1fr 80px; }
+  .item input, .item select {
+    width: 100%;
+    padding: 8px;
+    font-size: 0.95rem;
+    border: 1px solid #bbb;
+    border-radius: 3px;
+    font-family: inherit;
+  }
+  .item input[type="checkbox"] { width: auto; margin: 0 auto; display: block; }
+  .item button.del {
+    padding: 8px 10px;
+    font-size: 0.85rem;
+    border-color: #b00;
+    color: #b00;
+    background: #fff;
+  }
+  .add-row { margin-top: 4px; }
+  .add-row button {
+    border-style: dashed;
+    width: 100%;
+    padding: 12px;
+    background: transparent;
+  }
+  details { margin-top: 30px; background: #fff; border: 1px solid #ddd; border-radius: 4px; padding: 12px 16px; }
+  summary { cursor: pointer; font-weight: 600; }
+  details input { width: 100%; padding: 8px; font-size: 0.95rem; border: 1px solid #bbb; border-radius: 3px; font-family: inherit; margin-top: 8px; }
+  .hint { font-size: 0.8rem; color: #666; margin-top: 6px; }
+  .row-label { font-size: 0.75rem; color: #666; text-transform: uppercase; letter-spacing: 0.05em; }
+  .empty { color: #888; font-style: italic; padding: 10px 0; }
+  @media (max-width: 700px) {
+    .item, .item.task { grid-template-columns: 1fr 1fr; }
+    .item button.del { grid-column: 1 / -1; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Dashboard Data Editor</h1>
+  <div class="actions">
+    <button id="reload-btn" onclick="loadData()">Reload from GitHub</button>
+    <button id="save-btn" class="primary" onclick="saveData()">Save to GitHub</button>
+  </div>
+</header>
+
+<div id="status">Loading…</div>
+
+<h2>Events</h2>
+<div id="events-list"></div>
+<div class="add-row"><button onclick="addEvent()">+ Add event</button></div>
+
+<h2>Tasks</h2>
+<div id="tasks-list"></div>
+<div class="add-row"><button onclick="addTask()">+ Add task</button></div>
+
+<details>
+  <summary>GitHub settings</summary>
+  <p class="hint">
+    A Personal Access Token with <code>contents:write</code> permission on <code>ribokle/kindle</code> is needed to commit.
+    Stored in this browser's localStorage only — never sent anywhere except api.github.com.
+    Create one at: <a href="https://github.com/settings/tokens?type=beta" target="_blank">github.com/settings/tokens</a> (fine-grained, repo: ribokle/kindle, Contents: Read & write).
+  </p>
+  <label class="row-label">Personal Access Token</label>
+  <input type="password" id="pat-input" placeholder="github_pat_..." autocomplete="off">
+  <p class="hint">Branch: <code id="branch-display">main</code> · Repo: <code>ribokle/kindle</code></p>
+</details>
+
+<script>
+var REPO_OWNER = 'ribokle';
+var REPO_NAME = 'kindle';
+var FILE_PATH = 'data.json';
+var BRANCH = 'main';
+var API_BASE = 'https://api.github.com/repos/' + REPO_OWNER + '/' + REPO_NAME + '/contents/' + FILE_PATH;
+
+var state = {
+  events: [],
+  tasks: [],
+  sha: null
+};
+
+function setStatus(msg, kind) {
+  var el = document.getElementById('status');
+  el.textContent = msg;
+  el.className = kind || '';
+}
+
+function getPat() {
+  var input = document.getElementById('pat-input');
+  if (input.value) {
+    localStorage.setItem('github_pat', input.value);
+    return input.value;
+  }
+  var saved = localStorage.getItem('github_pat') || '';
+  input.value = saved;
+  return saved;
+}
+
+function newId(prefix) {
+  return prefix + '-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 6);
+}
+
+function todayStr() {
+  var d = new Date();
+  var m = String(d.getMonth() + 1).padStart(2, '0');
+  var day = String(d.getDate()).padStart(2, '0');
+  return d.getFullYear() + '-' + m + '-' + day;
+}
+
+function b64encodeUtf8(str) {
+  return btoa(unescape(encodeURIComponent(str)));
+}
+
+function b64decodeUtf8(b64) {
+  return decodeURIComponent(escape(atob(b64.replace(/\s/g, ''))));
+}
+
+function loadData() {
+  setStatus('Loading from GitHub…', 'working');
+  var pat = getPat();
+  var headers = { 'Accept': 'application/vnd.github+json' };
+  if (pat) headers['Authorization'] = 'token ' + pat;
+
+  fetch(API_BASE + '?ref=' + BRANCH, { headers: headers, cache: 'no-store' })
+    .then(function(r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status + ' ' + r.statusText);
+      return r.json();
+    })
+    .then(function(data) {
+      var json = JSON.parse(b64decodeUtf8(data.content));
+      state.events = Array.isArray(json.events) ? json.events : [];
+      state.tasks = Array.isArray(json.tasks) ? json.tasks : [];
+      state.sha = data.sha;
+      render();
+      setStatus('Loaded ' + state.events.length + ' events and ' + state.tasks.length + ' tasks from ' + BRANCH + '.', 'success');
+    })
+    .catch(function(err) {
+      setStatus('Load failed: ' + err.message, 'error');
+    });
+}
+
+function saveData() {
+  var pat = getPat();
+  if (!pat) {
+    setStatus('No token set. Open "GitHub settings" below and paste a Personal Access Token.', 'error');
+    return;
+  }
+  if (!state.sha) {
+    setStatus('No file loaded yet — click "Reload from GitHub" first.', 'error');
+    return;
+  }
+  pullFormValuesIntoState();
+  var json = JSON.stringify({ events: state.events, tasks: state.tasks }, null, 2) + '\n';
+  var body = {
+    message: 'Update data.json via editor',
+    content: b64encodeUtf8(json),
+    sha: state.sha,
+    branch: BRANCH
+  };
+  var saveBtn = document.getElementById('save-btn');
+  saveBtn.disabled = true;
+  setStatus('Saving to ' + BRANCH + '…', 'working');
+
+  fetch(API_BASE, {
+    method: 'PUT',
+    headers: {
+      'Accept': 'application/vnd.github+json',
+      'Authorization': 'token ' + pat,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(body)
+  })
+    .then(function(r) {
+      return r.json().then(function(j) { return { ok: r.ok, status: r.status, body: j }; });
+    })
+    .then(function(res) {
+      saveBtn.disabled = false;
+      if (!res.ok) {
+        var msg = res.body && res.body.message ? res.body.message : 'HTTP ' + res.status;
+        throw new Error(msg);
+      }
+      state.sha = res.body.content.sha;
+      setStatus('Saved. Commit: ' + res.body.commit.sha.slice(0, 7), 'success');
+    })
+    .catch(function(err) {
+      saveBtn.disabled = false;
+      setStatus('Save failed: ' + err.message, 'error');
+    });
+}
+
+function render() {
+  renderEvents();
+  renderTasks();
+}
+
+function renderEvents() {
+  var container = document.getElementById('events-list');
+  container.innerHTML = '';
+  if (state.events.length === 0) {
+    container.innerHTML = '<div class="empty">No events. Click "+ Add event" below.</div>';
+    return;
+  }
+  for (var i = 0; i < state.events.length; i++) {
+    container.appendChild(eventRow(state.events[i], i));
+  }
+}
+
+function eventRow(ev, idx) {
+  var div = document.createElement('div');
+  div.className = 'item event';
+  div.innerHTML =
+    '<input type="date" data-field="date" value="' + escapeAttr(ev.date || '') + '">' +
+    '<input type="time" data-field="time" value="' + escapeAttr(ev.time || '') + '">' +
+    '<input type="text" data-field="title" placeholder="Title" value="' + escapeAttr(ev.title || '') + '">' +
+    '<input type="text" data-field="tag" placeholder="tag" list="tag-options" value="' + escapeAttr(ev.tag || '') + '">' +
+    '<button class="del" onclick="deleteEvent(' + idx + ')">Delete</button>';
+  return div;
+}
+
+function renderTasks() {
+  var container = document.getElementById('tasks-list');
+  container.innerHTML = '';
+  if (state.tasks.length === 0) {
+    container.innerHTML = '<div class="empty">No tasks. Click "+ Add task" below.</div>';
+    return;
+  }
+  for (var i = 0; i < state.tasks.length; i++) {
+    container.appendChild(taskRow(state.tasks[i], i));
+  }
+}
+
+function taskRow(t, idx) {
+  var div = document.createElement('div');
+  div.className = 'item task';
+  div.innerHTML =
+    '<input type="date" data-field="date" value="' + escapeAttr(t.date || '') + '">' +
+    '<input type="checkbox" data-field="done"' + (t.done ? ' checked' : '') + ' title="done">' +
+    '<input type="text" data-field="title" placeholder="Title" value="' + escapeAttr(t.title || '') + '">' +
+    '<button class="del" onclick="deleteTask(' + idx + ')">Delete</button>';
+  return div;
+}
+
+function escapeAttr(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function pullFormValuesIntoState() {
+  var evRows = document.getElementById('events-list').querySelectorAll('.item.event');
+  for (var i = 0; i < evRows.length; i++) {
+    var row = evRows[i];
+    if (!state.events[i]) continue;
+    var fields = row.querySelectorAll('[data-field]');
+    for (var j = 0; j < fields.length; j++) {
+      var f = fields[j];
+      var name = f.getAttribute('data-field');
+      state.events[i][name] = f.value.trim();
+    }
+    if (!state.events[i].id) state.events[i].id = newId('e');
+  }
+  var taskRows = document.getElementById('tasks-list').querySelectorAll('.item.task');
+  for (var k = 0; k < taskRows.length; k++) {
+    var trow = taskRows[k];
+    if (!state.tasks[k]) continue;
+    var tfields = trow.querySelectorAll('[data-field]');
+    for (var m = 0; m < tfields.length; m++) {
+      var tf = tfields[m];
+      var tname = tf.getAttribute('data-field');
+      if (tname === 'done') {
+        state.tasks[k][tname] = tf.checked;
+      } else {
+        state.tasks[k][tname] = tf.value.trim();
+      }
+    }
+    if (!state.tasks[k].id) state.tasks[k].id = newId('t');
+  }
+}
+
+function addEvent() {
+  pullFormValuesIntoState();
+  state.events.push({ id: newId('e'), date: todayStr(), time: '09:00', title: '', tag: 'work' });
+  renderEvents();
+}
+
+function deleteEvent(idx) {
+  pullFormValuesIntoState();
+  state.events.splice(idx, 1);
+  renderEvents();
+}
+
+function addTask() {
+  pullFormValuesIntoState();
+  state.tasks.push({ id: newId('t'), date: todayStr(), title: '', done: false });
+  renderTasks();
+}
+
+function deleteTask(idx) {
+  pullFormValuesIntoState();
+  state.tasks.splice(idx, 1);
+  renderTasks();
+}
+
+document.body.insertAdjacentHTML('beforeend',
+  '<datalist id="tag-options"><option value="work"><option value="health"><option value="personal"></datalist>');
+
+getPat();
+loadData();
+</script>
+</body>
+</html>
