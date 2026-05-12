@@ -536,6 +536,24 @@ html, body {
   opacity: 0.6;
 }
 
+/* ---- PAGE FOOTER ---- */
+#page-footer {
+  padding: 20px 16px 24px;
+  text-align: center;
+  border-top: 1px solid #2a2a2a;
+  margin-top: 8px;
+}
+
+#page-footer a {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: #999999;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
 /* ---- LOADING ---- */
 #loading-overlay {
   position: fixed;
