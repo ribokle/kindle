@@ -7,8 +7,11 @@ ES5-compatible for Kindle WebKit browser
 var CONFIG = {
   // Open-Meteo: set your lat/lon (no API key needed)
   // Find your coords: https://www.latlong.net/
-  weatherLat: 12.9716,   // e.g. Bangalore
-  weatherLon: 77.5946,
+  weatherLat: 12.9716,   // Bangalore
+  weatherLon: 77.5946,   // Bangalore
+  // Force clock & "today" to Bangalore time (IST, UTC+5:30) regardless of
+  // the Kindle's locale setting. In minutes.
+  timeZoneOffsetMinutes: 330,
   weatherCacheMinutes: 60,
 
   // Data file location (relative to index.html)
@@ -21,10 +24,19 @@ var CONFIG = {
 // –– STATE ––
 var appData = { events: [], tasks: [] };
 var taskDoneState = {}; // id -> true/false (from localStorage)
-var currentMonth = new Date().getMonth();
-var currentYear = new Date().getFullYear();
 var currentFilter = 'all';
 var currentTab = 'today';
+
+// Returns "now" shifted into the configured timezone (default Bangalore/IST).
+// Built from UTC + offset so it works on Kindle WebKit, which lacks reliable
+// Intl / toLocaleString({ timeZone }) support.
+function nowLocal() {
+  var d = new Date();
+  return new Date(d.getTime() + d.getTimezoneOffset() * 60000 + CONFIG.timeZoneOffsetMinutes * 60000);
+}
+
+var currentMonth = nowLocal().getMonth();
+var currentYear = nowLocal().getFullYear();
 
 // –– INIT ––
 window.onload = function () {
@@ -37,7 +49,7 @@ window.onload = function () {
 
 // –– CLOCK ––
 function updateClock() {
-  var now = new Date();
+  var now = nowLocal();
   var h = now.getHours();
   var m = now.getMinutes();
   var ampm = h >= 12 ? 'PM' : 'AM';
@@ -112,7 +124,7 @@ function renderAll() {
 
 // –– HELPERS ––
 function todayStr() {
-  return dateToStr(new Date());
+  return dateToStr(nowLocal());
 }
 
 function dateToStr(d) {
@@ -215,7 +227,7 @@ function makeTaskEl(task, callback) {
 
 // –– RENDER WEEK ––
 function renderWeek() {
-  var today = new Date();
+  var today = nowLocal();
   today.setHours(0,0,0,0);
 
   // Start from Monday of current week
@@ -427,28 +439,29 @@ function clearDoneTasks() {
 }
 
 // –– WEATHER (Open-Meteo, no API key) ––
+// Kindle WebKit doesn't render emoji glyphs, so use short ASCII labels.
 var WMO_CODES = {
-  0:  { icon: '☀️',  desc: 'Clear' },
-  1:  { icon: '🌤',  desc: 'Mostly Clear' },
-  2:  { icon: '⛅',  desc: 'Partly Cloudy' },
-  3:  { icon: '☁️',  desc: 'Overcast' },
-  45: { icon: '🌫',  desc: 'Foggy' },
-  48: { icon: '🌫',  desc: 'Icy Fog' },
-  51: { icon: '🌦',  desc: 'Light Drizzle' },
-  61: { icon: '🌧',  desc: 'Light Rain' },
-  63: { icon: '🌧',  desc: 'Rain' },
-  65: { icon: '🌧',  desc: 'Heavy Rain' },
-  71: { icon: '🌨',  desc: 'Light Snow' },
-  73: { icon: '❄️',  desc: 'Snow' },
-  80: { icon: '🌦',  desc: 'Showers' },
-  95: { icon: '⛈',  desc: 'Thunderstorm' },
-  99: { icon: '⛈',  desc: 'Heavy Storm' }
+  0:  { icon: 'SUN',  desc: 'Clear' },
+  1:  { icon: 'SUN',  desc: 'Mostly Clear' },
+  2:  { icon: 'P/C',  desc: 'Partly Cloudy' },
+  3:  { icon: 'CLD',  desc: 'Overcast' },
+  45: { icon: 'FOG',  desc: 'Foggy' },
+  48: { icon: 'FOG',  desc: 'Icy Fog' },
+  51: { icon: 'DRZ',  desc: 'Light Drizzle' },
+  61: { icon: 'RAIN', desc: 'Light Rain' },
+  63: { icon: 'RAIN', desc: 'Rain' },
+  65: { icon: 'RAIN', desc: 'Heavy Rain' },
+  71: { icon: 'SNOW', desc: 'Light Snow' },
+  73: { icon: 'SNOW', desc: 'Snow' },
+  80: { icon: 'SHWR', desc: 'Showers' },
+  95: { icon: 'STRM', desc: 'Thunderstorm' },
+  99: { icon: 'STRM', desc: 'Heavy Storm' }
 };
 
 function fetchWeather() {
   // Check cache
   try {
-    var cached = localStorage.getItem('weatherCache');
+    var cached = localStorage.getItem('weatherCache_v2');
     if (cached) {
       var cObj = JSON.parse(cached);
       var age = (Date.now() - cObj.ts) / 60000;
@@ -470,10 +483,10 @@ function fetchWeather() {
       try {
         var data = JSON.parse(xhr.responseText);
         var w = data.current_weather;
-        var info = WMO_CODES[w.weathercode] || { icon: '—', desc: 'Unknown' };
+        var info = WMO_CODES[w.weathercode] || { icon: 'N/A', desc: 'Unknown' };
         var result = { temp: Math.round(w.temperature), icon: info.icon, desc: info.desc };
         try {
-          localStorage.setItem('weatherCache', JSON.stringify({ data: result, ts: Date.now() }));
+          localStorage.setItem('weatherCache_v2', JSON.stringify({ data: result, ts: Date.now() }));
         } catch(e) {}
         displayWeather(result);
       } catch(e) {}
