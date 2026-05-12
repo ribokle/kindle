@@ -20,7 +20,7 @@
   --bg: #ffffff;
   --bg-alt: #f0f0f0;
   --bg-done: #e0e0e0;
-  --tap-height: 58px;
+  --tap-height: 68px;
   --font-display: 'Playfair Display', Georgia, serif;
   --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
 }
@@ -32,9 +32,9 @@ html, body {
   background: var(--bg);
   color: var(--dark);
   font-family: var(--font-mono);
-  font-size: 19px;
-  font-weight: 600;
-  line-height: 1.5;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.45;
   overflow-x: hidden;
 }
 
@@ -76,12 +76,22 @@ html, body {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 2px;
+  gap: 3px;
+}
+
+#weather-place {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: #dddddd;
+  text-transform: uppercase;
+  line-height: 1;
 }
 
 #weather-icon {
   font-family: var(--font-mono);
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   font-weight: 700;
   letter-spacing: 0.12em;
   line-height: 1;
@@ -90,14 +100,14 @@ html, body {
 
 #weather-temp {
   font-family: var(--font-display);
-  font-size: 1.6rem;
+  font-size: 1.7rem;
   font-weight: 700;
   color: var(--bg);
   line-height: 1;
 }
 
 #weather-desc {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   font-weight: 700;
   letter-spacing: 0.12em;
   color: #dddddd;
@@ -117,11 +127,11 @@ html, body {
   border: none;
   border-right: 1px solid var(--border);
   font-family: var(--font-mono);
-  font-size: 0.9rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
   cursor: pointer;
-  color: var(--mid);
+  color: var(--dark);
   transition: none;
 }
 
@@ -143,13 +153,13 @@ html, body {
 .section { margin-bottom: 20px; }
 
 .section-label {
-  font-size: 0.8rem;
-  font-weight: 700;
+  font-size: 0.95rem;
+  font-weight: 800;
   letter-spacing: 0.22em;
-  color: var(--dark);
-  border-bottom: 1px solid var(--border);
-  padding-bottom: 6px;
-  margin-bottom: 10px;
+  color: var(--black);
+  border-bottom: 2px solid var(--border);
+  padding-bottom: 8px;
+  margin-bottom: 12px;
 }
 
 .divider {
@@ -169,37 +179,37 @@ html, body {
 .event-item:last-child { border-bottom: none; }
 
 .event-time {
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--dark);
-  min-width: 56px;
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--black);
+  min-width: 68px;
   padding-top: 2px;
   letter-spacing: 0.05em;
 }
 
 .event-title {
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: var(--dark);
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--black);
   flex: 1;
 }
 
 .event-tag {
-  font-size: 0.7rem;
-  font-weight: 700;
+  font-size: 0.8rem;
+  font-weight: 800;
   letter-spacing: 0.1em;
-  border: 1px solid var(--border);
-  padding: 3px 7px;
-  color: var(--dark);
+  border: 2px solid var(--border);
+  padding: 4px 8px;
+  color: var(--black);
   white-space: nowrap;
 }
 
 .empty-msg {
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: var(--mid);
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--dark);
   letter-spacing: 0.1em;
-  padding: 12px 0;
+  padding: 14px 0;
 }
 
 /* ---- TASKS ---- */
@@ -216,14 +226,15 @@ html, body {
 .task-item:last-child { border-bottom: none; }
 
 .task-check {
-  width: 26px;
-  height: 26px;
+  width: 32px;
+  height: 32px;
   border: 2px solid var(--border);
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.9rem;
+  font-size: 1.1rem;
+  font-weight: 800;
 }
 
 .task-item.done .task-check {
@@ -244,17 +255,17 @@ html, body {
 }
 
 .task-title {
-  font-size: 1.05rem;
-  font-weight: 700;
+  font-size: 1.2rem;
+  font-weight: 800;
   flex: 1;
-  color: var(--dark);
+  color: var(--black);
 }
 
 .task-date-badge {
-  font-size: 0.75rem;
-  font-weight: 700;
+  font-size: 0.9rem;
+  font-weight: 800;
   letter-spacing: 0.08em;
-  color: var(--mid);
+  color: var(--dark);
   white-space: nowrap;
 }
 
@@ -293,18 +304,18 @@ html, body {
 }
 
 .week-dayname {
-  font-size: 0.78rem;
-  font-weight: 700;
+  font-size: 0.95rem;
+  font-weight: 800;
   letter-spacing: 0.15em;
-  color: var(--dark);
+  color: var(--black);
 }
 
-.week-day-row.today-row .week-dayname { color: #cccccc; }
+.week-day-row.today-row .week-dayname { color: #dddddd; }
 
 .week-daynum {
   font-family: var(--font-display);
-  font-size: 2rem;
-  font-weight: 700;
+  font-size: 2.4rem;
+  font-weight: 800;
   line-height: 1;
 }
 
@@ -318,11 +329,11 @@ html, body {
 }
 
 .week-event-pill {
-  font-size: 0.85rem;
-  font-weight: 700;
+  font-size: 1rem;
+  font-weight: 800;
   background: var(--bg-alt);
-  border-left: 3px solid var(--border);
-  padding: 4px 9px;
+  border-left: 4px solid var(--border);
+  padding: 5px 10px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -335,14 +346,14 @@ html, body {
 }
 
 .week-task-count {
-  font-size: 0.78rem;
-  font-weight: 700;
+  font-size: 0.95rem;
+  font-weight: 800;
   letter-spacing: 0.1em;
-  color: var(--dark);
+  color: var(--black);
   padding: 2px 0;
 }
 
-.week-day-row.today-row .week-task-count { color: #cccccc; }
+.week-day-row.today-row .week-task-count { color: #dddddd; }
 
 /* ---- MONTH VIEW ---- */
 #month-nav {
@@ -355,22 +366,22 @@ html, body {
 
 #month-header {
   font-family: var(--font-display);
-  font-size: 1.7rem;
-  font-weight: 700;
+  font-size: 2rem;
+  font-weight: 800;
   text-align: center;
 }
 
 .nav-btn {
   background: none;
-  border: 1px solid var(--border);
+  border: 2px solid var(--border);
   font-family: var(--font-mono);
-  font-size: 0.85rem;
-  font-weight: 700;
+  font-size: 1rem;
+  font-weight: 800;
   letter-spacing: 0.1em;
-  padding: 8px 12px;
+  padding: 10px 14px;
   cursor: pointer;
-  color: var(--dark);
-  min-height: 44px;
+  color: var(--black);
+  min-height: 52px;
 }
 
 #month-day-labels {
@@ -380,12 +391,12 @@ html, body {
 }
 
 .month-day-label-cell {
-  font-size: 0.78rem;
+  font-size: 0.95rem;
   letter-spacing: 0.12em;
-  color: var(--dark);
+  color: var(--black);
   text-align: center;
-  padding: 6px 0;
-  font-weight: 700;
+  padding: 8px 0;
+  font-weight: 800;
 }
 
 #month-grid {
@@ -396,8 +407,8 @@ html, body {
 .month-cell {
   border-right: 1px solid #e0e0e0;
   border-bottom: 1px solid #e0e0e0;
-  min-height: 68px;
-  padding: 6px;
+  min-height: 82px;
+  padding: 8px;
   cursor: pointer;
   display: flex;
   flex-direction: column;
@@ -421,8 +432,8 @@ html, body {
 
 .month-cell-num {
   font-family: var(--font-display);
-  font-size: 1.3rem;
-  font-weight: 700;
+  font-size: 1.55rem;
+  font-weight: 800;
   line-height: 1;
   margin-bottom: 4px;
 }
@@ -446,10 +457,10 @@ html, body {
 }
 
 .month-task-bar {
-  font-size: 0.75rem;
-  font-weight: 700;
+  font-size: 0.9rem;
+  font-weight: 800;
   letter-spacing: 0.05em;
-  color: var(--dark);
+  color: var(--black);
   margin-top: 2px;
 }
 
@@ -465,15 +476,15 @@ html, body {
 
 #clear-done-btn {
   background: none;
-  border: 1px solid var(--border);
+  border: 2px solid var(--border);
   font-family: var(--font-mono);
-  font-size: 0.8rem;
-  font-weight: 700;
+  font-size: 0.95rem;
+  font-weight: 800;
   letter-spacing: 0.1em;
-  padding: 8px 12px;
+  padding: 10px 14px;
   cursor: pointer;
-  color: var(--dark);
-  min-height: 44px;
+  color: var(--black);
+  min-height: 52px;
 }
 
 #filter-bar {
@@ -484,15 +495,15 @@ html, body {
 
 .filter-btn {
   background: none;
-  border: 1px solid var(--border);
+  border: 2px solid var(--border);
   font-family: var(--font-mono);
-  font-size: 0.82rem;
-  font-weight: 700;
+  font-size: 1rem;
+  font-weight: 800;
   letter-spacing: 0.12em;
-  padding: 8px 14px;
+  padding: 10px 16px;
   cursor: pointer;
-  color: var(--dark);
-  min-height: 44px;
+  color: var(--black);
+  min-height: 52px;
 }
 
 .filter-btn.active {
@@ -504,7 +515,7 @@ html, body {
 /* ---- SCROLLABLE AREA BELOW HEADER+TABS ---- */
 .view {
   overflow-y: auto;
-  max-height: calc(100vh - 120px);
+  max-height: calc(100vh - 180px);
 }
 
 /* ---- FOCUS / ACTIVE STATES (e-ink feedback) ---- */

@@ -9,8 +9,10 @@ var CONFIG = {
   // Find your coords: https://www.latlong.net/
   weatherLat: 12.9716,   // Bangalore
   weatherLon: 77.5946,   // Bangalore
-  // Force clock & "today" to Bangalore time (IST, UTC+5:30) regardless of
-  // the Kindle's locale setting. In minutes.
+  weatherPlace: 'BANGALORE',
+  // IANA zone used to ask Open-Meteo for the wall-clock time we display.
+  weatherTimeZone: 'Asia/Kolkata',
+  // Fallback offset if the server time anchor isn't available yet (IST = UTC+5:30).
   timeZoneOffsetMinutes: 330,
   weatherCacheMinutes: 60,
 
@@ -27,12 +29,34 @@ var taskDoneState = {}; // id -> true/false (from localStorage)
 var currentFilter = 'all';
 var currentTab = 'today';
 
-// Returns "now" shifted into the configured timezone (default Bangalore/IST).
-// Built from UTC + offset so it works on Kindle WebKit, which lacks reliable
-// Intl / toLocaleString({ timeZone }) support.
+// timeOffsetMs: amount to add to Date.now() so that interpreting the result
+// as a UTC instant yields Bangalore wall time. Calibrated from Open-Meteo's
+// response (which knows real IST regardless of how badly the Kindle's own
+// clock has drifted). Persisted in localStorage so a stale device clock
+// is corrected immediately on subsequent loads.
+var timeOffsetMs = CONFIG.timeZoneOffsetMinutes * 60000;
+try {
+  var savedOffset = localStorage.getItem('timeOffsetMs_v1');
+  if (savedOffset !== null) {
+    var n = parseFloat(savedOffset);
+    if (!isNaN(n)) timeOffsetMs = n;
+  }
+} catch(e) {}
+
+// Returns a Date whose local fields (getHours, getMonth, getDate, ...)
+// represent Bangalore wall time, regardless of the device's clock or
+// timezone. Built by reading IST as UTC ms, then reconstructing as a
+// locally-built Date so subsequent local-field arithmetic stays consistent.
 function nowLocal() {
-  var d = new Date();
-  return new Date(d.getTime() + d.getTimezoneOffset() * 60000 + CONFIG.timeZoneOffsetMinutes * 60000);
+  var istAsUtc = new Date(Date.now() + timeOffsetMs);
+  return new Date(
+    istAsUtc.getUTCFullYear(),
+    istAsUtc.getUTCMonth(),
+    istAsUtc.getUTCDate(),
+    istAsUtc.getUTCHours(),
+    istAsUtc.getUTCMinutes(),
+    istAsUtc.getUTCSeconds()
+  );
 }
 
 var currentMonth = nowLocal().getMonth();
@@ -41,6 +65,7 @@ var currentYear = nowLocal().getFullYear();
 // –– INIT ––
 window.onload = function () {
   loadDoneState();
+  document.getElementById('weather-place').textContent = CONFIG.weatherPlace;
   updateClock();
   setInterval(updateClock, 30000);
   loadData();
@@ -474,7 +499,8 @@ function fetchWeather() {
 
   var url = 'https://api.open-meteo.com/v1/forecast?latitude=' + CONFIG.weatherLat +
             '&longitude=' + CONFIG.weatherLon +
-            '&current_weather=true&temperature_unit=celsius';
+            '&current_weather=true&temperature_unit=celsius' +
+            '&timezone=' + encodeURIComponent(CONFIG.weatherTimeZone);
 
   var xhr = new XMLHttpRequest();
   xhr.open('GET', url, true);
@@ -483,6 +509,7 @@ function fetchWeather() {
       try {
         var data = JSON.parse(xhr.responseText);
         var w = data.current_weather;
+        if (w && w.time) calibrateClock(w.time);
         var info = WMO_CODES[w.weathercode] || { icon: 'N/A', desc: 'Unknown' };
         var result = { temp: Math.round(w.temperature), icon: info.icon, desc: info.desc };
         try {
@@ -493,6 +520,27 @@ function fetchWeather() {
     }
   };
   xhr.send();
+}
+
+// Open-Meteo returns current_weather.time as "YYYY-MM-DDTHH:MM" already in
+// the requested timezone (Asia/Kolkata). Read those digits as if they were
+// UTC, and set timeOffsetMs so nowLocal() produces that wall time on every
+// subsequent tick. Refresh the clock immediately so the user sees real IST.
+function calibrateClock(serverTimeStr) {
+  var m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(serverTimeStr);
+  if (!m) return;
+  var serverMs = Date.UTC(
+    parseInt(m[1], 10),
+    parseInt(m[2], 10) - 1,
+    parseInt(m[3], 10),
+    parseInt(m[4], 10),
+    parseInt(m[5], 10),
+    0
+  );
+  timeOffsetMs = serverMs - Date.now();
+  try { localStorage.setItem('timeOffsetMs_v1', String(timeOffsetMs)); } catch(e) {}
+  updateClock();
+  renderAll();
 }
 
 function displayWeather(w) {
