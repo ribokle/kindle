@@ -1,27 +1,6 @@
 {
   "events": [
     {
-      "id": "e1",
-      "date": "2026-05-12",
-      "time": "09:00",
-      "title": "Team standup",
-      "tag": "work"
-    },
-    {
-      "id": "e2",
-      "date": "2026-05-12",
-      "time": "14:30",
-      "title": "Dentist appointment",
-      "tag": "health"
-    },
-    {
-      "id": "e3",
-      "date": "2026-05-13",
-      "time": "11:00",
-      "title": "Product review",
-      "tag": "work"
-    },
-    {
       "id": "e4",
       "date": "2026-05-14",
       "time": "19:00",
