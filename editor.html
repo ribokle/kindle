@@ -112,6 +112,16 @@
   .hint { font-size: 0.8rem; color: #888; margin-top: 6px; }
   .row-label { font-size: 0.75rem; color: #888; text-transform: uppercase; letter-spacing: 0.05em; }
   .empty { color: #777; font-style: italic; padding: 10px 0; }
+  .back-link {
+    display: inline-block;
+    color: #999;
+    text-decoration: none;
+    font-size: 0.85rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .back-link:hover { color: #f0f0f0; }
   @media (max-width: 700px) {
     .item, .item.task { grid-template-columns: 1fr 1fr; }
     .item button.del { grid-column: 1 / -1; }
@@ -119,6 +129,8 @@
 </style>
 </head>
 <body>
+
+<a class="back-link" href="index.html">&larr; Back to dashboard</a>
 
 <header>
   <h1>Dashboard Data Editor</h1>
