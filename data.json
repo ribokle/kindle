@@ -1,13 +1,6 @@
 {
   "events": [
     {
-      "id": "e4",
-      "date": "2026-05-14",
-      "time": "19:00",
-      "title": "Dinner with Priya",
-      "tag": "personal"
-    },
-    {
       "id": "e5",
       "date": "2026-05-15",
       "time": "10:00",
@@ -39,20 +32,20 @@
   "tasks": [
     {
       "id": "t1",
-      "date": "2026-05-12",
-      "title": "Reply to Rahul's email",
+      "date": "2026-06-22",
+      "title": "Do pricing demo",
       "done": false
     },
     {
       "id": "t2",
-      "date": "2026-05-12",
-      "title": "Review PR #42",
+      "date": "2026-06-22",
+      "title": "Cff plan",
       "done": false
     },
     {
       "id": "t3",
-      "date": "2026-05-12",
-      "title": "Pay electricity bill",
+      "date": "2026-06-22",
+      "title": "Team dinner",
       "done": false
     },
     {
