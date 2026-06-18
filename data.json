@@ -50,32 +50,8 @@
     },
     {
       "id": "t4",
-      "date": "2026-05-13",
-      "title": "Update project roadmap doc",
-      "done": false
-    },
-    {
-      "id": "t5",
-      "date": "2026-05-13",
-      "title": "Book train tickets",
-      "done": false
-    },
-    {
-      "id": "t6",
-      "date": "2026-05-14",
-      "title": "Prepare presentation deck",
-      "done": false
-    },
-    {
-      "id": "t7",
-      "date": "2026-05-15",
-      "title": "Submit expense report",
-      "done": false
-    },
-    {
-      "id": "t8",
-      "date": "2026-05-16",
-      "title": "Buy groceries",
+      "date": "2026-06-18",
+      "title": "Review databricks ai summit",
       "done": false
     }
   ]
